@@ -1,0 +1,193 @@
+R1
+enable
+configure terminal
+
+router ospf 1
+network 192.168.1.0 0.0.0.255 area 0
+network 10.1.1.0 0.0.0.3 area 0
+ex
+ex
+
+show ip ospf database
+
+R2
+enable
+configure terminal
+
+router ospf 2
+network 10.1.1.0 0.0.0.3 area 0
+network 10.2.2.0 0.0.0.3 area 0
+ex
+ex
+
+show ip ospf database
+
+R3
+enable
+configure terminal
+
+router ospf 3
+network 192.168.3.0 0.0.0.255 area 0
+network 10.2.2.0 0.0.0.3 area 0
+ex
+ex
+
+show ip ospf database
+
+PC Testing
+PCA cmd
+ping 192.168.3.5
+
+PCC cmd
+ping 192.168.1.6
+
+Enable OSPF MD5 Authentication
+R1
+enable
+configure terminal
+
+router ospf 1
+area 0 authentication message-digest
+ex
+
+R2
+enable
+configure terminal
+
+router ospf 2
+area 0 authentication message-digest
+ex
+
+R3
+enable
+configure terminal
+
+router ospf 3
+area 0 authentication message-digest
+ex
+
+Configure MD5 Key
+R1
+configure terminal
+
+interface s0/0/0
+ip ospf message-digest-key 1 md5 MD5pa55
+ex
+
+R2
+configure terminal
+
+interface s0/0/0
+ip ospf message-digest-key 1 md5 MD5pa55
+
+interface s0/0/1
+ip ospf message-digest-key 1 md5 MD5pa55
+ex
+
+R3
+configure terminal
+
+interface s0/0/1
+ip ospf message-digest-key 1 md5 MD5pa55
+ex
+
+Verification
+R1
+show ip ospf interface
+
+R2
+show ip ospf interface
+
+R3
+show ip ospf interface
+
+Part 2: Configure NTP
+PC-A
+Services → NTP
+Enable Authentication
+Key : 1
+Password : NTPpa55
+
+R1
+enable
+configure terminal
+
+ntp server 192.168.1.5
+ntp update-calendar
+
+ntp authenticate
+ntp trusted-key 1
+ntp authentication-key 1 md5 NTPpa55
+
+service timestamps log datetime msec
+ex
+
+show clock
+show ntp status
+
+R2
+enable
+configure terminal
+
+ntp server 192.168.1.5
+ntp update-calendar
+
+ntp authenticate
+ntp trusted-key 1
+ntp authentication-key 1 md5 NTPpa55
+
+service timestamps log datetime msec
+ex
+
+show clock
+show ntp status
+
+R3
+enable
+configure terminal
+
+ntp server 192.168.1.5
+ntp update-calendar
+
+ntp authenticate
+ntp trusted-key 1
+ntp authentication-key 1 md5 NTPpa55
+
+service timestamps log datetime msec
+ex
+
+show clock
+show ntp status
+
+Part 3: Configure Syslog
+R1
+enable
+configure terminal
+
+logging host 192.168.1.6
+ex
+
+show logging
+
+R2
+enable
+configure terminal
+
+logging host 192.168.1.6
+ex
+
+show logging
+
+R3
+enable
+configure terminal
+
+logging host 192.168.1.6
+ex
+
+show logging
+
+Syslog Server
+Services → Syslog
+Enable Syslog Service
+Check received logs

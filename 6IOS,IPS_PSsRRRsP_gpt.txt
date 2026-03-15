@@ -1,0 +1,139 @@
+
+Router Configuration (R1, R2, R3)
+enable
+configure terminal
+
+enable secret enpa55
+
+line console 0
+password conpa55
+login
+exit
+
+ip domain-name ccnasecurity.com
+username admin secret adminpa55
+
+line vty 0 4
+login local
+exit
+
+crypto key generate rsa
+1024
+
+OSPF Configuration
+R1
+configure terminal
+
+router ospf 1
+network 192.168.1.0 0.0.0.255 area 0
+network 10.1.1.0 0.0.0.3 area 0
+exit
+
+R2
+configure terminal
+
+router ospf 1
+network 10.1.1.0 0.0.0.3 area 0
+network 10.2.2.0 0.0.0.3 area 0
+exit
+
+R3
+configure terminal
+
+router ospf 1
+network 10.2.2.0 0.0.0.3 area 0
+network 192.168.3.0 0.0.0.255 area 0
+exit
+
+Enable IOS IPS (R1)
+show version
+
+configure terminal
+license boot module c1900 technology-package securityk9
+exit
+
+copy running-config startup-config
+reload
+
+Connectivity Test
+PCA CMD
+ping 192.168.3.2
+
+PCC CMD
+ping 192.168.1.2
+
+IPS Configuration (R1)
+mkdir ipsdir
+
+configure terminal
+
+ip ips config location flash:ipsdir
+ip ips name iosips
+ip ips notify log
+exit
+
+Configure Time and Syslog
+clock set HH:MM:SS DATE MONTH YEAR
+
+configure terminal
+
+service timestamps log datetime msec
+logging host 192.168.1.50
+
+Enable IPS Signature Category
+ip ips signature-category
+
+category all
+retired true
+exit
+
+category ios_ips basic
+retired false
+exit
+exit
+
+Apply IPS to Interface
+interface g0/0
+ip ips iosips out
+exit
+
+Verification
+show ip ips all
+
+Syslog Server
+Syslog Server → Services → SYSLOG
+
+Modify IPS Signature
+configure terminal
+
+ip ips signature-definition
+signature 2004 0
+
+status
+retired false
+enabled true
+exit
+
+engine
+event-action produce-alert
+event-action deny-packet-inline
+exit
+
+exit
+exit
+
+Verify Again
+show ip ips all
+
+Final Test
+PCC CMD
+ping 192.168.1.2
+
+
+(Expected: Unsuccessful)
+
+PCA CMD
+ping 192.168.3.2
+
+
+(Expected: Successful)

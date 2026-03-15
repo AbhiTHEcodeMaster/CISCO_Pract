@@ -1,0 +1,59 @@
+R1, SW1, SW2, SWA, SWB
+enable
+configure terminal
+enable secret ciscoenpa55
+line console 0
+password conpa55
+login
+exit
+ip domain-name ccnasecurity.com
+username admin secret adminpa55
+line vty 0 4
+login local
+exit
+crypto key generate rsa
+1024
+
+
+Central
+show spanning-tree
+configure terminal
+spanning-tree vlan 1 root primary
+exit
+show spanning-tree
+
+SW1
+configure terminal
+spanning-tree vlan 1 root secondary
+exit
+show spanning-tree
+
+SWA, SWB
+configure terminal
+interface range fa0/1-4
+spanning-tree portfast
+exit
+interface range fa0/1-4
+spanning-tree bpduguard enable
+exit
+interface range fa0/1-22
+switchport mode access
+switchport port-security
+switchport port-security maximum 2
+switchport port-security violation shutdown
+switchport port-security mac-address sticky
+exit
+interface range fa0/5-22
+shutdown
+exit
+show port-security interface fa0/1
+
+SW1, SW2
+configure terminal
+interface range fa0/23-24
+spanning-tree guard root
+exit
+
+PC
+ping 10.1.1.11
+ping 10.1.1.14

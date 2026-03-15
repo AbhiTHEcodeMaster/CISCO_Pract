@@ -1,0 +1,139 @@
+R1
+enable
+configure terminal
+
+line vty 0 4
+password admin
+login
+ex
+
+enable secret enpa55
+
+router ospf 1
+network 192.168.1.0 0.0.0.255 area 0
+network 10.1.1.0 0.0.0.3 area 0
+area 0 authentication message-digest
+ex
+
+interface g0/1
+ip ospf message-digest-key 1 md5 pa55
+ex
+
+ex
+show ip ospf interface
+
+R2
+enable
+configure terminal
+
+line vty 0 4
+password admin
+login
+ex
+
+enable secret enpa55
+
+router ospf 1
+network 192.168.2.0 0.0.0.255 area 0
+network 10.2.2.0 0.0.0.3 area 0
+network 10.1.1.0 0.0.0.3 area 0
+area 0 authentication message-digest
+ex
+
+interface g0/0
+ip ospf message-digest-key 1 md5 pa55
+ex
+
+ex
+show ip ospf interface
+
+R3
+enable
+configure terminal
+
+line vty 0 4
+password admin
+login
+ex
+
+enable secret enpa55
+
+router ospf 1
+network 192.168.3.0 0.0.0.255 area 0
+network 10.2.2.0 0.0.0.3 area 0
+area 0 authentication message-digest
+ex
+
+interface g0/0
+ip ospf message-digest-key 1 md5 pa55
+ex
+
+ex
+show ip ospf interface
+
+Configure AAA on R1
+enable
+configure terminal
+
+username Admin1 secret admin1pa55
+aaa new-model
+aaa authentication login default local
+
+line console 0
+login authentication default
+ex
+end
+
+User Login Test
+Username : Admin1
+Password : admin1pa55
+
+Configure SSH on R1
+configure terminal
+
+ip domain-name ccnasecurity.com
+crypto key generate rsa
+1024
+
+aaa authentication login SSH-LOGIN local
+
+line vty 0 4
+login authentication SSH-LOGIN
+transport input ssh
+end
+
+PC-A SSH Test
+ssh -l Admin1 192.168.1.1
+Password : admin1pa55
+
+Backup Local User on R2 (TACACS+)
+enable
+configure terminal
+
+username Admin2 secret admin2pa55
+aaa new-model
+aaa authentication login default group tacacs+ local
+
+line console 0
+login authentication default
+end
+
+Login Test
+Username : Admin2
+Password : admin2pa55
+
+AAA with RADIUS on R3
+enable
+configure terminal
+
+username Admin3 secret admin3pa55
+aaa new-model
+aaa authentication login default group radius local
+
+line console 0
+login authentication default
+end
+
+Login Test
+Username : Admin3
+Password : admin3pa55
